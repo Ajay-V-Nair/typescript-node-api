@@ -19,3 +19,7 @@ dist/
 
 # Windows system files
 Thumbs.db
+
+# Ignore generated JavaScript files
+*.js
+*.map
