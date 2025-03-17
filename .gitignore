@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# TypeScript build
+dist/
+*.tsbuildinfo
+
+# Environment files
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# Windows system files
+Thumbs.db
