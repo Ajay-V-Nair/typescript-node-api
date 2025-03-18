@@ -1,23 +1,63 @@
-import User, {IUser, ICreateUser} from "../models/userModel";
+import User, { IUser, ICreateUser } from "../models/userModel";
+import { Types } from "mongoose";
+import { ERROR_MESSAGES } from "../constants/messageConstants";
 
+// Fetch all users
 export const getUsers = async (): Promise<IUser[]> => {
-    return await User.find();
+    try {
+        return await User.find().lean();
+    } catch (error) {
+        throw new Error(ERROR_MESSAGES.FETCH_USERS_ERROR);
+    }
 };
 
-export const getUserById = async (id: String): Promise<IUser | null> => {
-    return await User.findById(id);
+// Fetch user by ID
+export const getUserById = async (id: string): Promise<IUser | null> => {
+    try {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new Error(ERROR_MESSAGES.INVALID_USER_ID);
+        }
+        return await User.findById(id).lean();
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        } else {
+            throw new Error(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+        }
+    }
 };
 
+// Create a new user
 export const createUser = async (userData: ICreateUser): Promise<IUser> => {
-    const newUser = new User(userData);
-    return await newUser.save();
+    try {
+        const newUser = new User(userData);
+        return await newUser.save();
+    } catch (error) {
+        throw new Error(ERROR_MESSAGES.CREATE_USER_ERROR);
+    }
 };
 
-export const updateUser = async (id: String, userData: Partial<IUser>): Promise<IUser | null> => {
-    return await User.findByIdAndUpdate(id, userData, {new: true});
+// Update an existing user
+export const updateUser = async (id: string, userData: Partial<IUser>): Promise<IUser | null> => {
+    try {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new Error(ERROR_MESSAGES.INVALID_USER_ID);
+        }
+        return await User.findByIdAndUpdate(id, userData, { new: true }).lean();
+    } catch (error) {
+        throw new Error(`${ERROR_MESSAGES.UPDATE_USER_ERROR}${id}`);
+    }
 };
 
-export const deleteUser = async (id: String): Promise<boolean | null> => {
-    const result = await User.findByIdAndDelete(id);
-    return result !== null;
-}
+// Delete a user
+export const deleteUser = async (id: string): Promise<boolean> => {
+    try {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new Error(ERROR_MESSAGES.INVALID_USER_ID);
+        }
+        const result = await User.findByIdAndDelete(id);
+        return result !== null;
+    } catch (error) {
+        throw new Error(`${ERROR_MESSAGES.DELETE_USER_ERROR}${id}`);
+    }
+};
